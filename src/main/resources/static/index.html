@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP学习项目 - 流程编排演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .status.running {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.completed {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .status.failed {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .tool-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .tool-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .tool-item h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .tool-item p {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 MCP学习项目</h1>
+            <p>Model Context Protocol 与流程编排演示平台</p>
+        </div>
+        
+        <div class="content">
+            <!-- MCP工具管理 -->
+            <div class="section">
+                <h2>🔧 MCP工具管理</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>可用工具</h3>
+                        <p>查看和管理所有可用的MCP工具</p>
+                        <button class="btn" onclick="loadTools()">加载工具列表</button>
+                        <div id="toolsList" class="tool-list"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>工具执行</h3>
+                        <p>测试工具执行功能</p>
+                        <div style="margin:10px 0;">
+                            <strong>文件工具参数</strong>
+                            <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px;">
+                                <input id="filePathInput" type="text" placeholder="文件路径，例如: test.txt" style="padding:10px;border:1px solid #ddd;border-radius:6px;">
+                                <textarea id="fileContentInput" rows="3" placeholder="文件内容" style="padding:10px;border:1px solid #ddd;border-radius:6px;"></textarea>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="testFileTool()">测试文件工具</button>
+                        <hr style="margin:16px 0; border:none; border-top:1px solid #eee;">
+                        <div style="margin:10px 0;">
+                            <strong>搜索工具参数</strong>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+                                <input id="searchQueryInput" type="text" placeholder="查询关键词，例如: class" style="padding:10px;border:1px solid #ddd;border-radius:6px;grid-column: span 2;">
+                                <input id="searchFileTypeInput" type="text" placeholder="文件类型(可选)，例如: java" style="padding:10px;border:1px solid #ddd;border-radius:6px;">
+                                <input id="searchIncludeDirsInput" type="text" placeholder="includeDirs(逗号分隔)，默认 src/main/java" style="padding:10px;border:1px solid #ddd;border-radius:6px;">
+                                <input id="searchExcludeDirsInput" type="text" placeholder="excludeDirs(逗号分隔)，例如: target,.git" style="padding:10px;border:1px solid #ddd;border-radius:6px;">
+                            </div>
+                        </div>
+                        <button class="btn" onclick="testSearchTool()">测试搜索工具</button>
+                        <div id="toolResult" class="log"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 工作流管理 -->
+            <div class="section">
+                <h2>⚡ 工作流管理</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>工作流列表</h3>
+                        <p>查看所有可用的工作流</p>
+                        <button class="btn" onclick="loadWorkflows()">加载工作流</button>
+                        <div id="workflowsList"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>工作流执行</h3>
+                        <p>执行选定的工作流</p>
+                        <select id="workflowSelect" style="width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ddd;">
+                            <option value="">选择工作流...</option>
+                        </select>
+                        <button class="btn btn-success" onclick="executeWorkflow()">执行工作流</button>
+                        <button class="btn btn-secondary" onclick="loadRunningExecutions()">查看运行中</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 执行监控 -->
+            <div class="section">
+                <h2>📊 执行监控</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>执行状态</h3>
+                        <p>监控工作流执行状态</p>
+                        <div id="executionStatus"></div>
+                        <div id="executionProgress" class="progress" style="display: none;">
+                            <div class="progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div id="executionLog" class="log"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>系统状态</h3>
+                        <p>查看系统整体状态</p>
+                        <button class="btn" onclick="loadSystemStatus()">刷新状态</button>
+                        <div id="systemStatus"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let currentExecutionId = null;
+        let statusCheckInterval = null;
+        
+        // 加载工具列表
+        async function loadTools() {
+            try {
+                const response = await fetch(`${API_BASE}/mcp/tools`);
+                const tools = await response.json();
+                
+                const toolsList = document.getElementById('toolsList');
+                toolsList.innerHTML = tools.map(tool => `
+                    <div class="tool-item">
+                        <h4>${tool.name}</h4>
+                        <p>${tool.description}</p>
+                        <small>分类: ${tool.category}</small>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载工具失败:', error);
+            }
+        }
+        
+        // 测试文件工具
+        async function testFileTool() {
+            try {
+                const result = document.getElementById('toolResult');
+                result.innerHTML = '执行中...\n';
+                const filePath = (document.getElementById('filePathInput').value || 'test.txt').trim();
+                const fileContent = (document.getElementById('fileContentInput').value || '这是一个测试文件，由MCP工具创建！');
+                
+                const response = await fetch(`${API_BASE}/mcp/tools/create_file/execute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: filePath, content: fileContent })
+                });
+                
+                const data = await response.json();
+                result.innerHTML += `执行结果: ${JSON.stringify(data, null, 2)}\n`;
+            } catch (error) {
+                console.error('测试文件工具失败:', error);
+            }
+        }
+        
+        // 测试搜索工具
+        async function testSearchTool() {
+            try {
+                const result = document.getElementById('toolResult');
+                result.innerHTML = '搜索中...\n';
+                const query = (document.getElementById('searchQueryInput').value || 'class').trim();
+                const fileType = (document.getElementById('searchFileTypeInput').value || '').trim();
+                const includeDirsRaw = (document.getElementById('searchIncludeDirsInput').value || 'src/main/java').trim();
+                const excludeDirsRaw = (document.getElementById('searchExcludeDirsInput').value || '').trim();
+                const includeDirs = includeDirsRaw.split(',').map(s => s.trim()).filter(Boolean);
+                const excludeDirs = excludeDirsRaw.split(',').map(s => s.trim()).filter(Boolean);
+                const payload = { query, includeDirs };
+                if (fileType) payload.fileType = fileType;
+                if (excludeDirs.length > 0) payload.excludeDirs = excludeDirs;
+                
+                const response = await fetch(`${API_BASE}/mcp/tools/search_codebase/execute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                result.innerHTML += `搜索结果: ${JSON.stringify(data, null, 2)}\n`;
+            } catch (error) {
+                console.error('测试搜索工具失败:', error);
+            }
+        }
+        
+        // 加载工作流列表
+        async function loadWorkflows() {
+            try {
+                const response = await fetch(`${API_BASE}/workflows`);
+                const workflows = await response.json();
+                
+                const workflowsList = document.getElementById('workflowsList');
+                const workflowSelect = document.getElementById('workflowSelect');
+                
+                workflowsList.innerHTML = workflows.map(workflow => `
+                    <div class="card">
+                        <h3>${workflow.name}</h3>
+                        <p>${workflow.description}</p>
+                        <p><strong>状态:</strong> ${workflow.status}</p>
+                        <p><strong>步骤数:</strong> ${workflow.steps ? workflow.steps.length : 0}</p>
+                    </div>
+                `).join('');
+                
+                // 更新选择框
+                workflowSelect.innerHTML = '<option value="">选择工作流...</option>' +
+                    workflows.map(workflow => `<option value="${workflow.id}">${workflow.name}</option>`).join('');
+            } catch (error) {
+                console.error('加载工作流失败:', error);
+            }
+        }
+        
+        // 执行工作流
+        async function executeWorkflow() {
+            const workflowId = document.getElementById('workflowSelect').value;
+            if (!workflowId) {
+                alert('请选择工作流');
+                return;
+            }
+            
+            try {
+                // 重置监控区域
+                if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
+                document.getElementById('executionLog').innerHTML = '';
+                const progress = document.getElementById('executionProgress');
+                const progressBar = progress.querySelector('.progress-bar');
+                progressBar.style.width = '0%';
+                progress.style.display = 'none';
+
+                const response = await fetch(`${API_BASE}/workflows/${workflowId}/execute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        parameters: {},
+                        executedBy: 'web-user'
+                    })
+                });
+                
+                const execution = await response.json();
+                currentExecutionId = execution.executionId;
+                
+                document.getElementById('executionStatus').innerHTML = `
+                    <div class="status running">
+                        执行已启动: ${execution.executionId}
+                    </div>
+                `;
+                
+                // 开始监控执行状态
+                startStatusMonitoring(execution.executionId);
+            } catch (error) {
+                console.error('执行工作流失败:', error);
+            }
+        }
+        
+        // 加载运行中的执行
+        async function loadRunningExecutions() {
+            try {
+                const response = await fetch(`${API_BASE}/workflows/executions/running`);
+                const executions = await response.json();
+                
+                const status = document.getElementById('executionStatus');
+                if (executions.length === 0) {
+                    status.innerHTML = '<div class="status">没有运行中的执行</div>';
+                } else {
+                    status.innerHTML = executions.map(execution => `
+                        <div class="status running">
+                            执行ID: ${execution.executionId}<br>
+                            进度: ${execution.completedSteps}/${execution.totalSteps}<br>
+                            状态: ${execution.status}
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('加载运行中执行失败:', error);
+            }
+        }
+        
+        // 开始状态监控
+        function startStatusMonitoring(executionId) {
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+            }
+            
+            statusCheckInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_BASE}/workflows/executions/${executionId}`);
+                    if (!response.ok) {
+                        // 404：执行不存在（可能因应用重启或内存库重置）
+                        if (response.status === 404) {
+                            clearInterval(statusCheckInterval);
+                            statusCheckInterval = null;
+                            document.getElementById('executionStatus').innerHTML = '<div class="status">执行不存在（可能已重启），请重新执行工作流</div>';
+                            return;
+                        }
+                        // 其它错误：短暂提示并继续下一轮
+                        console.warn('状态获取失败，状态码:', response.status);
+                        return;
+                    }
+                    const execution = await response.json();
+                    
+                    const status = document.getElementById('executionStatus');
+                    const progress = document.getElementById('executionProgress');
+                    const progressBar = progress.querySelector('.progress-bar');
+                    const log = document.getElementById('executionLog');
+                    
+                    // 更新状态
+                    let statusClass = 'running';
+                    if (execution.status === 'COMPLETED') statusClass = 'completed';
+                    else if (execution.status === 'FAILED') statusClass = 'failed';
+                    
+                    status.innerHTML = `
+                        <div class="status ${statusClass}">
+                            执行ID: ${execution.executionId}<br>
+                            状态: ${execution.status}<br>
+                            进度: ${execution.completedSteps}/${execution.totalSteps}
+                        </div>
+                    `;
+                    
+                    // 更新进度条
+                    if (execution.totalSteps > 0) {
+                        const progressPercent = (execution.completedSteps / execution.totalSteps) * 100;
+                        progressBar.style.width = `${progressPercent}%`;
+                        progress.style.display = 'block';
+                    }
+                    
+                    // 更新日志
+                    log.innerHTML += `${new Date().toLocaleTimeString()}: 状态更新 - ${execution.status}\n`;
+                    log.scrollTop = log.scrollHeight;
+                    
+                    // 如果执行完成，停止监控
+                    if (execution.status === 'COMPLETED' || execution.status === 'FAILED') {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                    }
+                } catch (error) {
+                    console.error('监控执行状态失败:', error);
+                }
+            }, 2000);
+        }
+        
+        // 加载系统状态
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/mcp/status`);
+                const status = await response.json();
+                
+                document.getElementById('systemStatus').innerHTML = `
+                    <div class="card">
+                        <h3>系统信息</h3>
+                        <p><strong>工具数量:</strong> ${status.toolCount}</p>
+                        <p><strong>可用工具:</strong> ${status.availableTools.join(', ')}</p>
+                        <p><strong>时间戳:</strong> ${new Date(status.timestamp).toLocaleString()}</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('加载系统状态失败:', error);
+            }
+        }
+        
+        // 页面加载时初始化
+        window.onload = function() {
+            loadTools();
+            loadWorkflows();
+            loadSystemStatus();
+        };
+    </script>
+</body>
+</html> 
